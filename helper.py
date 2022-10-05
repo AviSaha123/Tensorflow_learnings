@@ -36,3 +36,21 @@ def plot_decision_boundary(model, X, y):
     plt.scatter(X[:,0], X[:,1], c =y ,s =40, cmap = plt.cm.RdYlBu)
     plt.xlim(xx.min(), xx.max())
     plt.ylim(yy.min(), yy.max())
+    
+
+def plot_model_training(history):
+    plt.plot(history.history['mae'])
+    plt.plot(history.history['val_mae'])
+    plt.title('model MAE')
+    plt.ylabel('accuracy')
+    plt.xlabel('mae')
+    plt.legend(['train', 'test'], loc='upper right')
+    plt.show()
+
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper right')
+    plt.show()
