@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from tensorflow.python.keras.callbacks import TensorBoard
+import os 
 
 
 
@@ -66,3 +68,19 @@ def plot_model_training(history):
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper right')
     plt.show()
+
+
+def save_in_tensorboard(model_name):
+    """ Functions checks if model with the given name already exists in TensorBoard. 
+    Returns true if the model already exists in TensorBoard and false otherwise then proceeding to add the model to tensorboard.
+    Use: 'tensorboard --logdir=./' in terminal to run tensorboard
+    Args:
+        model_name (_type_): _description_
+    """
+    path = r'logs\{}'.format(model_name)
+    if os.path.exists(path) == False:
+        NAME = f'{model_name}'
+        tensorboard = TensorBoard(log_dir=f'logs/{NAME}')
+    else:
+        pass
+    return tensorboard
