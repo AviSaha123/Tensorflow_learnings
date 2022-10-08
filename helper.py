@@ -1,6 +1,10 @@
+import itertools
+from turtle import title
 import numpy as np
 import matplotlib.pyplot as plt
+import tensorflow as tf
 from tensorflow.python.keras.callbacks import TensorBoard
+from sklearn.metrics import confusion_matrix
 import os 
 
 
@@ -81,6 +85,44 @@ def save_in_tensorboard(model_name):
     if os.path.exists(path) == False:
         NAME = f'{model_name}'
         tensorboard = TensorBoard(log_dir=f'logs/{NAME}')
+        return tensorboard
+    # else:
+    #     return tf.keras.callbacks.Callback()
+
+
+def plot_confusion_matrix(y_test, y_pred):
+    """ Plots the confusion matrix for a given model.
+
+    Args:
+        y_test (_type_): Testing Data
+        y_pred (_type_): Predicted Data
+    """
+    cm = confusion_matrix(y_test, tf.round(y_pred))
+    cm_norm = cm.astype('float')/cm.sum(axis=1)[:, np.newaxis]
+    n_classes = cm.shape[0]
+    fig, ax = plt.subplots(figsize=(10, 10))
+    cax = ax.matshow(cm, cmap=plt.cm.Blues)
+    fig.colorbar(cax)
+
+    classes = False
+    if classes:
+        labels = classes
     else:
-        pass
-    return tensorboard
+        labels = np.arange(cm.shape[0])
+
+    ax.set(title='Confusion matrix',
+           xlabel='Predicted Model',
+           ylabel='True Label',
+           xticks=np.arange(n_classes),
+           yticks=np.arange(n_classes),
+           xticklabels=labels,
+           yticklabels=labels,
+           )
+
+    threshold = (cm.max() + cm.min()) / 2
+
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, f'{cm[i,j]} ({cm_norm[i,j]* 100: .1f} %)',
+                 horizontalalignment='center',
+                 color= 'white' if cm[i, j] > threshold else 'black',
+                 size = 15)
