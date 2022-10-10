@@ -118,7 +118,14 @@ def plot_confusion_matrix(y_test, y_pred):
            xticklabels=labels,
            yticklabels=labels,
            )
-
+    
+    ax.xaxis.set_label_position('bottom')
+    ax.xaxis.tick_bottom()
+    
+    ax.yaxis.label.set_size(20)
+    ax.xaxis.label.set_size(20)
+    ax.title.set_size(20)
+    
     threshold = (cm.max() + cm.min()) / 2
 
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
