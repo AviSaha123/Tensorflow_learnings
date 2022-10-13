@@ -1,5 +1,5 @@
 import itertools
-from turtle import title
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -98,43 +98,6 @@ def plot_confusion_matrix(y_true, y_pred, classes = None,figsize = (15,15),text_
         y_test (_type_): Testing Data
         y_pred (_type_): Predicted Data
     """
-    # plt.figure(figsize = figsize)
-    # cm = confusion_matrix(y_true, tf.round(y_pred))
-    # cm_norm = cm.astype('float')/cm.sum(axis=1)[:, np.newaxis]
-    # n_classes = cm.shape[0]
-    # fig, ax = plt.subplots(figsize=figsize)
-    # cax = ax.matshow(cm, cmap=plt.cm.Blues)
-    # fig.colorbar(cax)
-
-    # if classes:
-    #     labels = classes
-    # else:
-    #     labels = np.arange(cm.shape[0])
-
-    # ax.set(title='Confusion matrix',
-    #        xlabel='Predicted Model',
-    #        ylabel='True Label',
-    #        xticks=np.arange(n_classes),
-    #        yticks=np.arange(n_classes),
-    #        xticklabels=labels,
-    #        yticklabels=labels,
-    #        )
-    
-    # ax.xaxis.set_label_position('bottom')
-    # ax.xaxis.tick_bottom()
-    
-    # ax.yaxis.label.set_size(text_size)
-    # ax.xaxis.label.set_size(text_size)
-    # ax.title.set_size(text_size)
-    
-    # threshold = (cm.max() + cm.min()) / 2
-
-    # for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-    #     plt.text(j, i, f'{cm[i,j]} ({cm_norm[i,j]* 100: .1f} %)',
-    #              horizontalalignment='center',
-    #              color= 'white' if cm[i, j] > threshold else 'black',
-    #              size = text_size)
-     # Create the confustion matrix
     cm = confusion_matrix(y_true, y_pred)
     cm_norm = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis] # normalize it
     n_classes = cm.shape[0] # find the number of classes we're dealing with
@@ -172,3 +135,38 @@ def plot_confusion_matrix(y_true, y_pred, classes = None,figsize = (15,15),text_
                 horizontalalignment="center",
                 color="white" if cm[i, j] > threshold else "black",
                 size=text_size)
+        
+        
+def plot_random_images(model,images,true_labels,classes):
+    """ Plots random images with labels and shows the true labels and the predicted labels along with the confidnece scores.
+
+    Args
+    model: a trained model (trained on data similar to what's in images).
+    images: a set of random images (in tensor form).
+    true_labels: array of ground truth labels for images.
+    classes: array of class names for images.
+    
+    
+  Returns:
+    A plot of a random image from `images` with a predicted class label from `model`
+    as well as the truth class label from `true_labels`.
+    
+    """
+    i = random.randint(0,len(images))
+    
+    target_image = images[i]
+    pred_probs = model.predict(target_image.reshape(1, 28, 28)) # have to reshape to get into right size for model
+    pred_label = classes[pred_probs.argmax()]
+    true_label = classes[true_labels[i]]
+    
+    plt.imshow(target_image, cmap = plt.cm.binary)
+    
+    if pred_label == true_label:
+        color = 'green'
+    else:
+        color = 'red'
+        
+    plt.xlabel("Pred: {} {:2.0f}% (True: {})".format(pred_label,
+                                                     100*tf.reduce_max(pred_probs),
+                                                     true_label),
+                                                    color=color)
