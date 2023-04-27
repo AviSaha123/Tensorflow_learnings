@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.python.keras.callbacks import TensorBoard
 from sklearn.metrics import confusion_matrix
+import matplotlib.image as mpimg
+import datetime
+import tensorflow_hub as hub
+from tensorflow.keras import layers
 import os 
 
 
@@ -170,3 +174,108 @@ def plot_random_images(model,images,true_labels,classes):
                                                      100*tf.reduce_max(pred_probs),
                                                      true_label),
                                                     color=color)
+
+
+def view_random_image(target_dir, target_class):
+  target_folder = target_dir+target_class
+  random_image = random.sample(os.listdir(target_folder), 1)
+  img = mpimg.imread(target_folder + '/' + random_image[0])
+  plt.imshow(img)
+  plt.title(target_class)
+  plt.axis('off')
+  print(f'Image shape: {img.shape}')
+  return img
+
+
+def plot_loss_curves(history):
+  loss = history.history['loss']
+  val_loss = history.history['val_loss']
+
+  accuracy = history.history['accuracy']
+  val_accuracy = history.history['val_accuracy']
+
+  epochs = range(len(history.history['loss']))
+
+  plt.plot(epochs, loss, label='training loss')
+  plt.plot(epochs, val_loss, label='validation loss')
+  plt.title('loss')
+  plt.xlabel('epochs')
+  plt.legend()
+
+  plt.figure()
+  plt.plot(epochs, accuracy, label='training accuracy')
+  plt.plot(epochs, val_accuracy, label='val accuracy')
+  plt.title('accuracy')
+  plt.xlabel('epochs')
+  plt.legend()
+  
+  
+
+
+def create_tensorboard_callback(dir_name, experiment_name):
+  log_dir = dir_name + "/" + experiment_name + "/" + \
+      datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+  tensorboard_callback = tf.keras.callbacks.TensorBoard(
+      log_dir=log_dir
+  )
+  print(f"Saving TensorBoard log files to: {log_dir}")
+  return tensorboard_callback
+
+
+IMAGE_SHAPE = (224, 224)
+BATCH_SIZE = 32
+
+def create_model(model_url, num_classes=10):
+  """Takes a TensorFlow Hub URL and creates a Keras Sequential model with it.
+  
+  Args:
+    model_url (str): A TensorFlow Hub feature extraction URL.
+    num_classes (int): Number of output neurons in output layer,
+      should be equal to number of target classes, default 10.
+
+  Returns:
+    An uncompiled Keras Sequential model with model_url as feature
+    extractor layer and Dense output layer with num_classes outputs.
+  """
+  # Download the pretrained model and save it as a Keras layer
+  feature_extractor_layer = hub.KerasLayer(model_url,
+                                           trainable=False,  # freeze the underlying patterns
+                                           name='feature_extraction_layer',
+                                           input_shape=IMAGE_SHAPE+(3,))  # define the input image shape
+
+  # Create our own model
+  model = tf.keras.Sequential([
+      feature_extractor_layer,  # use the feature extraction layer as the base
+      layers.Dense(num_classes, activation='softmax',
+                   name='output_layer')  # create our own output layer
+  ])
+
+  return model
+
+
+def plot_loss_curves(history):
+  """
+  Returns separate loss curves for training and validation metrics.
+  """
+  loss = history.history['loss']
+  val_loss = history.history['val_loss']
+
+  accuracy = history.history['accuracy']
+  val_accuracy = history.history['val_accuracy']
+
+  epochs = range(len(history.history['loss']))
+
+  # Plot loss
+  plt.plot(epochs, loss, label='training_loss')
+  plt.plot(epochs, val_loss, label='val_loss')
+  plt.title('Loss')
+  plt.xlabel('Epochs')
+  plt.legend()
+
+  # Plot accuracy
+  plt.figure()
+  plt.plot(epochs, accuracy, label='training_accuracy')
+  plt.plot(epochs, val_accuracy, label='val_accuracy')
+  plt.title('Accuracy')
+  plt.xlabel('Epochs')
+  plt.legend()
