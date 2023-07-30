@@ -368,3 +368,23 @@ def compare_history(original_history, new_history,initial_epochs = 5):
   plt.plot([initial_epochs-1, initial_epochs-1],
            plt.ylim(), label='Start of fine tuning')
   plt.legend(loc='upper right')
+
+
+
+def calculate_results(y_true,y_pred):
+  """ Calculates the the metrics for a binary classification model. Generates the accuracy score, recall, precision and F1-score.
+
+  Args:
+      y_true (_type_): _description_
+      y_pred (_type_): _description_
+  """
+  model_accuracy = accuracy_score(y_true,y_pred)*100
+  model_precision, model_recall, model_f1 = precision_recall_fscore_support(y_true,y_pred,average = 'weighted')
+  model_results = {
+    "Accuracy" : model_accuracy,
+    "Precision": model_precision,
+    "Recall": model_recall,
+    "F1-Score": model_f1
+  }
+  
+  return model_results
